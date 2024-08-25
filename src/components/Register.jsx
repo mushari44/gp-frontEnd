@@ -15,7 +15,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "https://gp-back-end-23b2cebb8602.herokuapp/api/auth/register",
+        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/auth/register",
         {
           id,
           password,

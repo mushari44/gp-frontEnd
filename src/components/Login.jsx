@@ -20,7 +20,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "https://gp-back-end-23b2cebb8602.herokuapp/api/auth/login",
+        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/auth/login",
         {
           id,
           password,

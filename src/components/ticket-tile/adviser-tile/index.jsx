@@ -76,7 +76,7 @@ export default function AdviserTicketTile({
 
     try {
       const response = await axios.put(
-        "https://gp-back-end-23b2cebb8602.herokuapp/api/ticket/user/expectedDuration",
+        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/user/expectedDuration",
         requestBody
       );
       const data = response.data;
@@ -98,7 +98,7 @@ export default function AdviserTicketTile({
   const handleEndSession = async () => {
     try {
       const response = await axios.put(
-        "https://gp-back-end-23b2cebb8602.herokuapp/api/ticket/user/endSession",
+        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/user/endSession",
         {
           adviserId: storedId,
           studentId: ticketItem.ReceiverId,
