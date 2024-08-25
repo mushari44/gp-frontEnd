@@ -28,7 +28,7 @@ export default function GlobalState({ children }) {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io("http://127.0.0.1:4000");
+    const newSocket = io("https://gp-back-end-23b2cebb8602.herokuapp");
 
     newSocket.on("connect", () => {
       console.log("Connected to socket server");
@@ -53,7 +53,7 @@ export default function GlobalState({ children }) {
   async function fetchFreeTime() {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:4000/api/ticket/getHours"
+        "https://gp-back-end-23b2cebb8602.herokuapp/api/ticket/getHours"
       );
       const data = response.data;
       setFreeTime(data);
@@ -66,7 +66,7 @@ export default function GlobalState({ children }) {
   const fetchAdvisers = useCallback(async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:4000/api/ticket/advisersData"
+        "https://gp-back-end-23b2cebb8602.herokuapp/api/ticket/advisersData"
       );
       setAdviserData(response.data);
     } catch (error) {
@@ -93,7 +93,7 @@ export default function GlobalState({ children }) {
       try {
         // Create the ticket
         const response = await axios.put(
-          "http://127.0.0.1:4000/api/ticket/user/createTicket",
+          "https://gp-back-end-23b2cebb8602.herokuapp/api/ticket/user/createTicket",
           {
             studentId: storedId,
             adviserId: adviser?._id,
@@ -138,7 +138,7 @@ export default function GlobalState({ children }) {
 
     try {
       const response = await axios.get(
-        `http://127.0.0.1:4000/api/ticket/user/${storedId}?userType=${userType}`
+        `https://gp-back-end-23b2cebb8602.herokuapp/api/ticket/user/${storedId}?userType=${userType}`
       );
       setUserData(response.data);
       setTickets(response.data.tickets || []); // Update tickets state with fetched tickets
