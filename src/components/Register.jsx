@@ -14,12 +14,15 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://127.0.0.1:4000/api/auth/register", {
-        id,
-        password,
-        username,
-        userType,
-      });
+      const res = await axios.post(
+        "https://gp-back-end-23b2cebb8602.herokuapp/api/auth/register",
+        {
+          id,
+          password,
+          username,
+          userType,
+        }
+      );
       setSuccess(res.data.message);
       setUserType(userType);
       setError("");
