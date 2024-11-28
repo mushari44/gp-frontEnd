@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 10s ease infinite;
+  background-size: 70%;
+}
+
+:root {
+  --bg-color-light: #e3e3e3;
+  --bg-color-dark: #1c1c1c;
+  --text-color-light: #333333;
+  --text-color-dark: #e0e0e0;
+  --bg-product-light: rgba(255, 255, 255, 0.808);
+  --bg-product-dark: #252525;
+}
+
+html.light {
+  --bg-color: var(--bg-color-light);
+  --text-color: var(--text-color-light);
+  --product-color: var(--bg-product-light);
+
+  --title-text-color: linear-gradient(
+    180deg,
+    rgb(255, 255, 255) 10%,
+    rgb(103, 157, 195) 100%
+  );
+}
+
+html.dark {
+  --bg-color: var(--bg-color-dark);
+  --text-color: var(--text-color-dark);
+  --product-color: var(--bg-product-dark);
+  --title-text-color: linear-gradient(
+    180deg,
+    rgb(0, 0, 0) 0%,
+    rgb(135, 147, 214) 100%
+  );
+  span {
+    color: rgb(224, 224, 224);
+  }
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 1s ease, color 1s ease;
+}
+
+#product {
+  background: var(--product-color);
+  transition: all 0.7s ease;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-rotate {
+  animation: rotate 0.6s linear;
+}
+
+#title {
+  background: var(--title-text-color);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  width: fit-content;
+}
+@keyframes fall {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate__fall {
+  animation: fall 1s ease-out;
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate__slideInRight {
+  animation: slideInRight 0.6s ease-out;
+}
+
+/* 3D Background Effect */
+.bg-3d-background {
+  background: linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(255, 255, 255, 0.1)
+  );
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.1)
+  );
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  z-index: -1;
+  transform: rotateX(10deg) rotateY(10deg);
+}
+
+/* Optional: add more 3D effects */
+.bg-3d-background::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.3),
+    rgba(0, 0, 0, 0.1)
+  );
+  transform: translate(-50%, -50%) rotateX(45deg);
+  z-index: -1;
+}
+/* Add a subtle background animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}

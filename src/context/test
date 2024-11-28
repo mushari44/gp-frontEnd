@@ -1,0 +1,148 @@
+// GlobalState.js
+import React, { createContext, useEffect, useState } from "react";
+import axios from "axios";
+import useLocalStorage from "../components/useLocalStorage";
+import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
+
+export const GlobalContext = createContext(null);
+
+export default function GlobalState({ children }) {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [storedId, setStoredId] = useLocalStorage("ID", "");
+  const [userType, setUserType] = useLocalStorage("userType", "student");
+  const [adviserData, setAdviserData] = useState([]);
+  const [adviser, setAdviser] = useState(null);
+  const [socket, setSocket] = useState(null);
+  const navigate = useNavigate();
+
+  // Fetch user data when storedId or userType changes
+  useEffect(() => {
+    if (storedId && userType) {
+      fetchUser();
+    }
+  }, [storedId, userType]);
+
+  // Initialize socket connection
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
+
+    newSocket.on("connect", () => {
+      console.log("Connected to socket server");
+      if (storedId) {
+        newSocket.emit("joinRoom", storedId);
+      }
+    });
+
+    newSocket.on("disconnect", () => {
+      console.log("Disconnected from socket server");
+    });
+
+    newSocket.on("ticketCreated", (data) => {
+      console.log("Ticket created: ", data);
+      fetchUser();
+    });
+
+    newSocket.on("newMessage", (data) => {
+      console.log("New message: ", data);
+      fetchUser();
+    });
+
+    return () => {
+      newSocket.close();
+    };
+  }, [storedId]);
+  // Fetch advisers data
+  async function fetchAdvisers() {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/ticket/advisersData"
+      );
+      setAdviserData(response.data);
+    } catch (error) {
+      console.error("Error fetching advisers data: ", error);
+      setError(error.message);
+    }
+  }
+
+  // Create a new ticket
+  async function handleCreateTicket(title) {
+    const newTimeStamp = new Date().toISOString();
+    const newDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      weekday: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
+    const adviserName = adviser?.username;
+    const studentName = userData?.username;
+
+    try {
+      await axios.put("http://localhost:5000/api/ticket/user/createTicket", {
+        studentId: userData?.id,
+        adviserId: adviser?._id,
+        adviserName,
+        studentName,
+        title,
+        timeStamp: newTimeStamp,
+        date: newDate,
+        storedId,
+      });
+    } catch (error) {
+      console.log(userData);
+      console.log(adviser);
+      console.error("Error creating ticket:", error);
+      setError(error.message);
+    }
+  }
+
+  // Fetch user data
+  async function fetchUser() {
+    if (!storedId || !userType) return;
+
+    setLoading(true);
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/ticket/user/${storedId}?userType=${userType}`
+      );
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setError(error.message || "Failed to fetch user data");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <GlobalContext.Provider
+      value={{
+        userData,
+        setUserData,
+        storedId,
+        setStoredId,
+        fetchUser,
+        navigate,
+        handleCreateTicket,
+        loading,
+        error,
+        userType,
+        setUserType,
+        fetchAdvisers,
+        adviserData,
+        setAdviserData,
+        adviser,
+        setAdviser,
+        socket,
+      }}
+    >
+      {children}
+    </GlobalContext.Provider>
+  );
+}
