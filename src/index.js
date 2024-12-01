@@ -5,16 +5,15 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import GlobalState from "./context";
-import { ThemeProvider } from "./components/light-dark-mode/ThemeContext";
+import Particle from "./components/Particle";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <GlobalState>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
+        <App />
+        <Particle />
       </GlobalState>
     </BrowserRouter>
   </React.StrictMode>

@@ -17,6 +17,11 @@ export default function GlobalState({ children }) {
   const [socket, setSocket] = useState(null);
   const [freeTime, setFreeTime] = useState([]);
   const [tickets, setTickets] = useState([]); // State to store tickets
+  const [availableDurations, setAvailableDurations] = useState(0);
+  const [fromTime, setFromTime] = useState(null);
+  const [fromTime2, setFromTime2] = useState(null);
+  const [toTime, setToTime] = useState(null);
+  const [toTime2, setToTime2] = useState(null);
 
   const navigate = useNavigate();
 
@@ -25,10 +30,11 @@ export default function GlobalState({ children }) {
       fetchUser();
     }
   }, [storedId, userType]);
+  // const newSocket = io("http://127.0.0.1:4000");
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io("https://gp-back-end-23b2cebb8602.herokuapp.com");
+    const newSocket = io("http://127.0.0.1:4000");
 
     newSocket.on("connect", () => {
       console.log("Connected to socket server");
@@ -49,26 +55,13 @@ export default function GlobalState({ children }) {
     };
   }, [storedId]);
 
-  // Fetch advisers data
-  async function fetchFreeTime() {
-    try {
-      const response = await axios.get(
-        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/getHours"
-      );
-      const data = response.data;
-      setFreeTime(data);
-      console.log("get hours endpoint : ", data);
-    } catch (error) {
-      console.log("Time error: ", error);
-    }
-  }
-
   const fetchAdvisers = useCallback(async () => {
     try {
       const response = await axios.get(
-        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/advisersData"
+        "http://127.0.0.1:4000/api/ticket/advisersData"
       );
       setAdviserData(response.data);
+      console.log("adviser  : ", response.data);
     } catch (error) {
       console.error("Error fetching advisers data: ", error);
       setError(error.message);
@@ -93,7 +86,7 @@ export default function GlobalState({ children }) {
       try {
         // Create the ticket
         const response = await axios.put(
-          "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/user/createTicket",
+          "http://127.0.0.1:4000/api/ticket/user/createTicket",
           {
             studentId: storedId,
             adviserId: adviser?._id,
@@ -138,10 +131,14 @@ export default function GlobalState({ children }) {
 
     try {
       const response = await axios.get(
-        `https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/user/${storedId}?userType=${userType}`
+        `http://127.0.0.1:4000/api/ticket/user/${storedId}?userType=${userType}`
       );
       setUserData(response.data);
       setTickets(response.data.tickets || []); // Update tickets state with fetched tickets
+      console.log("TEST fetch user : ", response.data);
+      if (userType === "adviser" && response.data.availableTimes === null) {
+        navigate("/profile");
+      }
     } catch (error) {
       console.error("Error fetching user:", error);
       setError(error.message || "Failed to fetch user data");
@@ -170,9 +167,19 @@ export default function GlobalState({ children }) {
         adviser,
         setAdviser,
         socket,
-        fetchFreeTime,
         freeTime,
-        tickets, // Expose tickets state to the context
+        setFreeTime,
+        tickets,
+        availableDurations,
+        setAvailableDurations,
+        fromTime,
+        setFromTime,
+        fromTime2,
+        setFromTime2,
+        toTime,
+        setToTime,
+        toTime2,
+        setToTime2,
       }}
     >
       {children}

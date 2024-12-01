@@ -19,7 +19,7 @@ export default function MessageContainer({ ticket }) {
   const fetchMessages = useCallback(async () => {
     try {
       const response = await axios.get(
-        `https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/messages/${ticket._id}`
+        `http://127.0.0.1:4000/api/ticket/messages/${ticket._id}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -37,7 +37,7 @@ export default function MessageContainer({ ticket }) {
       try {
         // Save the message to the server
         await axios.post(
-          `https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/messages/${ticketId}`,
+          `http://127.0.0.1:4000/api/ticket/messages/${ticketId}`,
           {
             ReceiverTicketId: ticket.ReceiverTicketId,
             content: newMessage,
@@ -109,8 +109,8 @@ export default function MessageContainer({ ticket }) {
   }, [messages]);
 
   return (
-    <div className="relative border-2  text-right border-black/20X  bg-white/100 rounded-lg  shadow-2xl overflow-hidden flex flex-col h-[70vh]  max-h-[70vh] mx-auto w-full max-w-3xl ">
-      <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-4 ">
+    <div className="relative border-2  text-right border-black/20  bg-white/100 rounded-lg  shadow-2xl overflow-hidden flex flex-col h-[70vh] sm:max-h-[70vh] max-h-[55vh] mx-auto w-full max-w-3xl ">
+      <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-2 ">
         {messages.map((msg, index) => (
           <div key={index} className="mb-4 ">
             <div
@@ -148,18 +148,18 @@ export default function MessageContainer({ ticket }) {
         ))}
         <div ref={messageEndRef} />
       </div>
-      <div className="flex p-4 bg-gray-200 border-t border-gray-300 w-full ">
+      <div className="flex p-2 sm:p-4 bg-gray-200 border-t border-gray-300 w-full ">
         <form onSubmit={(e) => handleSendMessage(e)} className="flex w-full  ">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-grow border w-9/12 border-gray-300 rounded-lg px-4 py-2 mr-2 text-gray-700"
+            className="flex-grow placeholder:text-sm border w-10/12 border-gray-300 rounded-lg px-4 py-2 mr-2 text-gray-700"
             placeholder="Type a message"
           />
           <button
             onClick={handleSendMessage}
-            className="bg-blue-600 text-white rounded-lg px-4 py-2 transition-colors duration-200 hover:bg-blue-700"
+            className="bg-blue-600 text-white text-sm sm:text-base rounded-lg px-2 py-2 sm:px-4 sm:py-2  transition-colors duration-200 hover:bg-blue-700"
           >
             Send
           </button>

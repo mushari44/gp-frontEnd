@@ -1,45 +1,40 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { GlobalContext } from "../../../context";
 import MessageContainer from "../../messages";
+import TimePickerExample from "../../DropDown";
 
 export default function AdviserTicketTile({
   ticketItem,
   setActiveTicket,
   activeTicket,
+  availableDurations,
+  setAvailableDurations,
 }) {
-  const [showMessages, setShowMessages] = useState(false);
   const [changeTime, setChangeTime] = useState(false);
   const [durationChanged, setDurationChanged] = useState(false);
-  // const [expectedDuration, setExpectedDuration] = useState(ticketItem.Duration);
   const [endSession, setEndSession] = useState(false);
   const [conclusion, setConclusion] = useState("");
   const { storedId, socket } = useContext(GlobalContext);
 
-  // Update expectedDuration whenever ticketItem prop changes
+  // Ref to target the message container
+  const messageContainerRef = useRef(null);
+
   useEffect(() => {
-    // setExpectedDuration(ticketItem.Duration);
     setDurationChanged(false);
     setChangeTime(false);
     setEndSession(false);
     setConclusion("");
   }, [ticketItem]);
 
-  // Handle socket events
   useEffect(() => {
     if (socket) {
       const handleDurationUpdate = (ticketDetails) => {
-        // Update only if this ticket is affected
-
         if (ticketItem._id === ticketDetails._id) {
-          console.log("YES");
-
-          // setExpectedDuration(ticketDetails.Duration);
           ticketItem.Duration = ticketDetails.Duration;
           ticketItem.Hour = ticketDetails.Hour;
           ticketItem.Minutes = ticketDetails.Minutes;
           ticketItem.confirmedDuration = true;
-          // console.log(newDuration);
         }
       };
 
@@ -58,12 +53,12 @@ export default function AdviserTicketTile({
     }
   }, [socket, ticketItem]);
 
-  async function handleSelect(Duration) {
+  const handleSelect = async (Duration) => {
     setChangeTime(false);
     setDurationChanged(true);
-    // setExpectedDuration(Duration);
     ticketItem.confirmedDuration = true;
     ticketItem.Duration = Duration;
+
     const requestBody = {
       studentId: ticketItem.ReceiverId,
       adviserId: storedId,
@@ -76,29 +71,22 @@ export default function AdviserTicketTile({
 
     try {
       const response = await axios.put(
-        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/user/expectedDuration",
+        "http://127.0.0.1:4000/api/ticket/user/expectedDuration",
         requestBody
       );
       const data = response.data;
-      socket.emit("durationUpdated", {
-        data,
-      });
-      // setExpectedDuration(""); // Reset duration after update
+      socket.emit("durationUpdated", { data });
     } catch (error) {
       console.log(error);
     }
-  }
-
-  // Handle session conclusion input change
-  const handleConclusionChange = (e) => {
-    setConclusion(e.target.value);
   };
 
-  // API call to handle session end
+  const handleConclusionChange = (e) => setConclusion(e.target.value);
+
   const handleEndSession = async () => {
     try {
       const response = await axios.put(
-        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/ticket/user/endSession",
+        "http://127.0.0.1:4000/api/ticket/user/endSession",
         {
           adviserId: storedId,
           studentId: ticketItem.ReceiverId,
@@ -107,12 +95,12 @@ export default function AdviserTicketTile({
           conclusion,
         }
       );
+
       const sessionDetails = {
         adviserTicketId: ticketItem._id,
         studentTicketId: ticketItem.ReceiverTicketId,
         conclusion: conclusion,
       };
-      console.log(response.data);
       socket.emit("sessionEnded", sessionDetails);
       setEndSession(false);
       ticketItem.conclusion = response.data;
@@ -140,112 +128,114 @@ export default function AdviserTicketTile({
     duration
   );
 
+  const toggleMessages = () => {
+    // If the current ticket is already active, close it
+    if (activeTicket === ticketItem._id) {
+      setActiveTicket(null);
+    } else {
+      // Open the current ticket and close any others
+      setActiveTicket(ticketItem._id);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTicket === ticketItem._id && messageContainerRef.current) {
+      setTimeout(() => {
+        const elementPosition =
+          messageContainerRef.current.getBoundingClientRect().top +
+          window.pageYOffset;
+        const adjustedPosition = elementPosition - 100; // Subtract 50 pixels
+
+        window.scrollTo({
+          top: adjustedPosition,
+          behavior: "smooth",
+        });
+      }, 100); // Delay to ensure DOM updates
+    }
+  }, [activeTicket, ticketItem._id]);
+
   return (
-    <div
-      id="product"
-      className="relative  animate__slideInRight  bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 border border-gray-300 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:scale-105 p-6 mt-8 mb-6 w-11/12 mx-auto  animate__animated animate__fadeIn"
-    >
-      <div className="   absolute inset-0 bg-gradient-to-br from-transparent to-blue-400 opacity-30 -z-10" />
-      <div className="   flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-        <div className=" break-words whitespace-normal max-w-full w-1/2  space-y-3 flex-1 text-center sm:text-left">
-          <h1 className="md:text-xl font-bold text-xs">
-            Student name: {ticketItem.name}
-          </h1>
-          <h1 className="md:text-xl font-bold text-xs">
-            Title: {ticketItem.title}
-          </h1>
-          <h1 className="md:text-xl font-bold text-xs">
-            Course: {ticketItem.course}
-          </h1>
-          <h1 className="md:text-xl font-bold text-xs">
-            From: {formatTime(startHour, startMinute)} to{" "}
+    <div className="relative bg-neutral-100 border border-gray-300 rounded-lg shadow-lg p-6 mb-6 w-full max-w-3xl mx-auto hover:shadow-xl transition-transform transform hover:scale-105">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex-1 text-center sm:text-left">
+          {changeTime ? (
+            <div className="  w-full text-black items-start justify-start flex">
+              {/* <DropDown
+                handleSelect={handleSelect}
+                minutes={availableDurations}
+              ></DropDown> */}
+              <TimePickerExample title={"From Time"} />
+            </div>
+          ) : null}
+          <h2 className="text-lg font-bold text-gray-800  ">
+            Student: {ticketItem.name}
+          </h2>
+          <p className="text-sm text-gray-600">Title: {ticketItem.title}</p>
+          <p className="text-sm text-gray-600">Course: {ticketItem.course}</p>
+          <p className="text-sm text-gray-600">
+            Time: {formatTime(startHour, startMinute)} -{" "}
             {ticketItem.confirmedDuration
               ? formatTime(endHour, endMinute)
-              : "?"}
-          </h1>
-          <h1 className="md:text-xl font-bold text-xs">
-            Duration: {duration} minutes
-          </h1>
-
-          <div hidden={ticketItem.confirmedDuration}>
-            {!durationChanged ? (
-              <div className="w-full">
-                <button
-                  className="mr-6 bg-blue-200 p-1 rounded-md font-bold text-black"
-                  onClick={() => handleSelect(duration)}
-                >
-                  Confirm Duration
-                </button>
-                <button
-                  className="mr-6 bg-red-200 p-1 rounded-md font-bold text-black"
-                  onClick={() => setChangeTime(true)}
-                >
-                  Change Time
-                </button>
-              </div>
-            ) : null}
-
-            {changeTime ? (
-              <div className="w-full flex items-end justify-end">
-                <select
-                  id="expected-time"
-                  onChange={(e) => handleSelect(e.target.value)}
-                  className="w-2/4 text-black px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-center overflow-auto max-h-32"
-                  aria-label="Select expected minutes"
-                >
-                  <option key={0} value={0} disabled={false}>
-                    Select the session duration
-                  </option>
-                  {[...Array(20).keys()].map((minute) => (
-                    <option key={minute + 1} value={minute + 1}>
-                      {minute + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
-          </div>
-
+              : "Pending"}
+          </p>
+          <p className="text-sm text-gray-600">Duration: {duration} minutes</p>
           {ticketItem.conclusion && (
             <div className="w-full">
-              <h1 className="text-2xl font-semibold  mt-2">
+              <h1 className="text-black">
                 Session Conclusion:{" "}
                 <span className="font-normal ">{ticketItem.conclusion}</span>
               </h1>
             </div>
           )}
+        </div>
+        <div className="flex gap-2">
+          {!ticketItem.confirmedDuration && !durationChanged && (
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600"
+              onClick={() => handleSelect(duration)}
+            >
+              Confirm Duration
+            </button>
+          )}
+          {!ticketItem.confirmedDuration && (
+            <button
+              className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-600"
+              onClick={() => setChangeTime((prev) => !prev)}
+            >
+              Change Time
+            </button>
+          )}
 
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-transform duration-300 transform hover:scale-105 hover:shadow-lg"
-            onClick={() =>
-              activeTicket === ticketItem._id
-                ? setActiveTicket(null)
-                : setActiveTicket(ticketItem._id)
-            }
-          >
-            {showMessages ? "Hide Messages" : "Show Messages"}
-          </button>
           {!ticketItem.conclusion ? (
             <button
-              className="bg-red-600 ml-5 hover:bg-red-700 text-white font-semibold rounded-lg px-6 py-3 mt-4 transition-transform duration-300 transform hover:scale-105 hover:shadow-lg"
+              className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600"
               onClick={() => setEndSession(!endSession)}
             >
               End Session
             </button>
           ) : null}
-
-          <p className="text-red-600 font-extrabold">
-            <span className="text-xs text-gray-500">Created at: </span>
-            {ticketItem.date}
-          </p>
         </div>
-        {ticketItem._id === activeTicket && (
-          <div className="animate__animated animate__fadeIn animate__delay-1s w-1/2 h-full max-h-full overflow-y-auto">
-            <MessageContainer ticket={ticketItem} />
-          </div>
-        )}
       </div>
 
+      {activeTicket === ticketItem._id && (
+        <div
+          className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4"
+          ref={messageContainerRef}
+        >
+          <MessageContainer ticket={ticketItem} />
+        </div>
+      )}
+
+      <button
+        className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold w-full hover:bg-blue-700"
+        onClick={toggleMessages}
+      >
+        {ticketItem._id === activeTicket ? "Hide Messages" : "Show Messages"}{" "}
+      </button>
+      <p className="text-red-600  text-xs font-bold mt-2">
+        <span className="text-xs text-gray-500">Created at: </span>
+        {ticketItem.date}
+      </p>
       {endSession && (
         <div className="w-full flex flex-col items-end mt-4">
           <textarea

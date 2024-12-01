@@ -45,12 +45,13 @@ export default function TicketsContents() {
   );
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center p-6">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-6 text-white">
       <input
-        className="w-1/3 bg-gray-100  text-black text-sm  p-3  rounded-md shadow-lg border border-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
+        className="w-1/3 bg-gradient-to-r from-gray-100 to-gray-200 text-black text-sm p-3 mb-8 rounded-lg shadow-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={`Search by name,title,course,conclusion,ticket created date(day,month,hour ..) `}
+        placeholder="🔍 Search by name, title, course, or date..."
       />
+
       {filteredTickets.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 w-full ">
           {filteredTickets.map((ticket, index) =>

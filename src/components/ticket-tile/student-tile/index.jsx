@@ -85,7 +85,7 @@ const StudentTicketTile = ({ ticketItem, setActiveTicket, activeTicket }) => {
   return (
     <div
       id="product"
-      className="relative border border-gray-300 rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 ease-in-out transform hover:scale-105 p-6 mt-8 mb-6 w-11/12 mx-auto animate__animated animate__fadeIn"
+      className="relative border border-gray-300 rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 ease-in-out transform hover:scale-105 p-6 mt-8 mb-6 w-10/12 mx-auto animate__animated animate__fadeIn"
     >
       <div className="   absolute inset-0 bg-gradient-to-br from-transparent to-blue-400 opacity-30 -z-10" />
       <div className="   flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">

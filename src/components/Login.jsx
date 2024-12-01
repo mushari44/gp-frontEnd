@@ -19,27 +19,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "https://gp-back-end-23b2cebb8602.herokuapp.com/api/auth/login",
-        {
-          id,
-          password,
-          userType,
-        }
-      );
+      const res = await axios.post("http://127.0.0.1:4000/api/auth/login", {
+        id,
+        password,
+        userType,
+      });
       const data = res.data;
       setUserData(data.user);
       setStoredId(data.user._id);
       setUserType(userType);
       setError("");
-      navigate("/tickets");
+      console.log(data);
+      if (data.user.availableTimes === null) {
+        navigate("/profile"); // Navigate to tickets
+      } else {
+        navigate("/tickets"); // Navigate to tickets
+      }
       console.log(userType);
     } catch (err) {
       setError(err.response.data.message);
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center  ">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Login</h2>
         {error && <p className="text-red-500">{error}</p>}
