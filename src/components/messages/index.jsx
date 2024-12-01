@@ -19,7 +19,7 @@ export default function MessageContainer({ ticket }) {
   const fetchMessages = useCallback(async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:4000/api/ticket/messages/${ticket._id}`
+        `https://gp-backend-ikch.onrender.com/api/ticket/messages/${ticket._id}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -37,7 +37,7 @@ export default function MessageContainer({ ticket }) {
       try {
         // Save the message to the server
         await axios.post(
-          `http://127.0.0.1:4000/api/ticket/messages/${ticketId}`,
+          `https://gp-backend-ikch.onrender.com/api/ticket/messages/${ticketId}`,
           {
             ReceiverTicketId: ticket.ReceiverTicketId,
             content: newMessage,

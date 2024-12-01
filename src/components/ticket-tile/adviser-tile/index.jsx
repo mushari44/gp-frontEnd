@@ -71,7 +71,7 @@ export default function AdviserTicketTile({
 
     try {
       const response = await axios.put(
-        "http://127.0.0.1:4000/api/ticket/user/expectedDuration",
+        "https://gp-backend-ikch.onrender.com/api/ticket/user/expectedDuration",
         requestBody
       );
       const data = response.data;
@@ -86,7 +86,7 @@ export default function AdviserTicketTile({
   const handleEndSession = async () => {
     try {
       const response = await axios.put(
-        "http://127.0.0.1:4000/api/ticket/user/endSession",
+        "https://gp-backend-ikch.onrender.com/api/ticket/user/endSession",
         {
           adviserId: storedId,
           studentId: ticketItem.ReceiverId,

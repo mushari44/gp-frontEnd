@@ -30,11 +30,11 @@ export default function GlobalState({ children }) {
       fetchUser();
     }
   }, [storedId, userType]);
-  // const newSocket = io("http://127.0.0.1:4000");
+  // const newSocket = io("https://gp-backend-ikch.onrender.com");
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io("http://127.0.0.1:4000");
+    const newSocket = io("https://gp-backend-ikch.onrender.com");
 
     newSocket.on("connect", () => {
       console.log("Connected to socket server");
@@ -58,7 +58,7 @@ export default function GlobalState({ children }) {
   const fetchAdvisers = useCallback(async () => {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:4000/api/ticket/advisersData"
+        "https://gp-backend-ikch.onrender.com/api/ticket/advisersData"
       );
       setAdviserData(response.data);
       console.log("adviser  : ", response.data);
@@ -86,7 +86,7 @@ export default function GlobalState({ children }) {
       try {
         // Create the ticket
         const response = await axios.put(
-          "http://127.0.0.1:4000/api/ticket/user/createTicket",
+          "https://gp-backend-ikch.onrender.com/api/ticket/user/createTicket",
           {
             studentId: storedId,
             adviserId: adviser?._id,
@@ -131,7 +131,7 @@ export default function GlobalState({ children }) {
 
     try {
       const response = await axios.get(
-        `http://127.0.0.1:4000/api/ticket/user/${storedId}?userType=${userType}`
+        `https://gp-backend-ikch.onrender.com/api/ticket/user/${storedId}?userType=${userType}`
       );
       setUserData(response.data);
       setTickets(response.data.tickets || []); // Update tickets state with fetched tickets

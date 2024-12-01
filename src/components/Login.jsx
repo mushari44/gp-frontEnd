@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://127.0.0.1:4000/api/auth/login", {
+      const res = await axios.post("https://gp-backend-ikch.onrender.com/api/auth/login", {
         id,
         password,
         userType,
