@@ -14,7 +14,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://gp-backend-ikch.onrender.com/api/auth/register", {
+      const res = await axios.post("http://127.0.0.1:4000/api/auth/register", {
         id,
         password,
         username,
@@ -46,7 +46,7 @@ const Register = () => {
           />
           <input
             type="text"
-            placeholder="Enter your Student Id"
+            placeholder="Enter your Student Id "
             value={id}
             onChange={(e) => setId(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -58,27 +58,6 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
-          {userType === "adviser" ? (
-            <div className="flex-col items-center text-center ">
-              <p className="mb-4">Select your office hours</p>
-              <div className="flex gap-2 items-center">
-                <label htmlFor="from" id="from">
-                  from
-                </label>
-                <input
-                  id="from"
-                  type="time"
-                  onChange={(e) => setSelectedHour(e.target.value)}
-                  className="w-2/5 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-                to
-                <input
-                  type="time"
-                  className="w-2/5 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
-            </div>
-          ) : null}
           <select
             value={userType}
             onChange={(e) => setUserType(e.target.value)}

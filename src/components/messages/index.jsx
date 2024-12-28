@@ -19,7 +19,7 @@ export default function MessageContainer({ ticket }) {
   const fetchMessages = useCallback(async () => {
     try {
       const response = await axios.get(
-        `https://gp-backend-ikch.onrender.com/api/ticket/messages/${ticket._id}`
+        `http://127.0.0.1:4000/api/ticket/messages/${ticket._id}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -37,7 +37,7 @@ export default function MessageContainer({ ticket }) {
       try {
         // Save the message to the server
         await axios.post(
-          `https://gp-backend-ikch.onrender.com/api/ticket/messages/${ticketId}`,
+          `http://127.0.0.1:4000/api/ticket/messages/${ticketId}`,
           {
             ReceiverTicketId: ticket.ReceiverTicketId,
             content: newMessage,
@@ -49,13 +49,14 @@ export default function MessageContainer({ ticket }) {
         );
 
         // Emit the message to both rooms (student and adviser)
-        socket.emit("newMessage", {
-          studentTicketId:
-            userType === "student" ? ticket._id : ticket.ReceiverTicketId,
-          adviserTicketId:
-            userType === "student" ? ticket.ReceiverTicketId : ticket._id,
-          newMessage,
-        });
+        socket.emit("updateTicket", "message", newMessage);
+        // socket.emit(
+        //   "newMessage",
+        //   {
+        //     newMessage,
+        //   },
+        //   "message"
+        // );
 
         setNewMessage(""); // Clear input after sending
       } catch (error) {
@@ -80,7 +81,8 @@ export default function MessageContainer({ ticket }) {
 
     joinRooms(); // Join rooms on mount
 
-    socket.on("newMessage", fetchMessages); // Listen for new messages
+    // socket.on("newMessage", fetchMessages, "message"); // Listen for new messages
+    socket.on("updateTicket", fetchMessages, "message"); // Listen for new messages
 
     return () => {
       const studentTicketId =
@@ -89,7 +91,8 @@ export default function MessageContainer({ ticket }) {
         userType === "student" ? ticket.ReceiverTicketId : ticket._id;
 
       socket.emit("leaveTicketRoom", { studentTicketId, adviserTicketId });
-      socket.off("newMessage", fetchMessages); // Cleanup the event listener
+      // socket.off("newMessage", fetchMessages, "message"); // Cleanup the event listener
+      socket.off("updateTicket", "message", fetchMessages); // Listen for new messages
     };
   }, [socket, ticket._id, ticket.ReceiverTicketId, userType, fetchMessages]);
 

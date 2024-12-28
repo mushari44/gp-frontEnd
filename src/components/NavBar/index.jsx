@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import {
   AiFillStar,
@@ -6,9 +6,12 @@ import {
   AiOutlineFundProjectionScreen,
   AiOutlineUser,
 } from "react-icons/ai";
+import { FaRobot } from "react-icons/fa6";
 import { CgFileDocument } from "react-icons/cg";
-
+import { GlobalContext } from "../../context";
 const NavBar = () => {
+  const { userType } = useContext(GlobalContext);
+
   return (
     <>
       <div
@@ -23,9 +26,22 @@ const NavBar = () => {
             </div>
           </Link>
           <ul className="flex list-none items-center space-x-6 text-white font-semibold">
-            <Link to={"/"} className="group hover:text-gray-500">
+            <Link to={"/ChatBot"} className="group hover:text-gray-500">
               <li className="cursor-pointer transition-transform transform hover:scale-110 relative flex items-center space-x-1">
                 <AiOutlineHome /> <span>Home</span>
+                <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-500 group-hover:w-full"></span>
+              </li>
+            </Link>
+            <Link to={"/Login"}>
+              <div className="text-center sm:text-left sm:w-full ">
+                <h1 className="cursor-pointer text-white transition-tr  ansform transform hover:scale-110">
+                  Login
+                </h1>
+              </div>
+            </Link>
+            <Link to={"/ChatBot"} className="group hover:text-gray-500">
+              <li className="cursor-pointer transition-transform transform hover:scale-110 relative flex items-center space-x-1">
+                <FaRobot /> <span>ChatBot</span>
                 <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-500 group-hover:w-full"></span>
               </li>
             </Link>
@@ -42,10 +58,18 @@ const NavBar = () => {
                 <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-500 group-hover:w-full"></span>
               </li>
             </Link>
+            {userType === "Admin" ? (
+              <Link to={"/asign"} className="group hover:text-gray-500">
+                <li className="cursor-pointer transition-transform transform hover:scale-110 relative flex items-center space-x-2">
+                  <AiOutlineUser /> <span>asing students</span>
+                  <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-500 group-hover:w-full"></span>
+                </li>
+              </Link>
+            ) : null}
           </ul>
         </nav>
       </div>
-      <div className="pt-32 ">{}</div>
+      <div className="pt-24 ">{}</div>
     </>
   );
 };

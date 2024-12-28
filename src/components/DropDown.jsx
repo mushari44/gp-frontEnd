@@ -2,11 +2,14 @@ import React, { useContext, useState } from "react";
 import { TimePicker } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { GlobalContext } from "../context";
+import "../index.css";
 const TimePickerRangeExample = ({ title, onTimeChange }) => {
   const [fromTime, setFromTime] = useState(null);
-
+  const { adviser, availableDurations, setAvailableDurations } =
+    useContext(GlobalContext);
   const [toTime, setToTime] = useState(null);
   const [date, setDate] = useState(null);
+  const [duration, setDuration] = useState(0);
   const handleFromTimeChange = (value) => {
     setFromTime(value);
     // Reset the "toTime" if it's before the "fromTime"
@@ -20,14 +23,49 @@ const TimePickerRangeExample = ({ title, onTimeChange }) => {
     setToTime(value);
     onTimeChange({ fromTime, toTime: value });
   };
+  const disableNonAllowedDays = (date) => {
+    if (!adviser || !adviser.availableTimes || !adviser.availableTimes.Days) {
+      return true; // Disable all dates if data is unavailable
+    }
 
-  const disableNonSundayMonday = (date) => {
+    // Get the numeric representation of allowed days (0 = Sunday, 1 = Monday, etc.)
+    const allowedDays = adviser.availableTimes.Days.map((day) => {
+      switch (day.day.toLowerCase()) {
+        case "sunday":
+          return 0;
+        case "monday":
+          return 1;
+        case "tuesday":
+          return 2;
+        case "wednesday":
+          return 3;
+        case "thursday":
+          return 4;
+        default:
+          return null;
+      }
+    });
+    // console.log("allowed days : ", allowedDays);
+
     const day = date.getDay();
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
+    today.setHours(0, 0, 0, 0); // Reset to midnight for comparison
 
-    // Disable past dates and non-Sunday/Monday
-    return date < today || (day !== 0 && day !== 1);
+    // Disable if the date is in the past or not in the allowed days
+    return date < today || !allowedDays.includes(day);
+  };
+
+  const handleToggle = (open) => {
+    const picker = document.querySelector(".time-picker-drop-up");
+    if (picker) {
+      const rect = picker.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 200) {
+        picker.classList.add("drop-up");
+      } else {
+        picker.classList.remove("drop-up");
+      }
+    }
   };
 
   return (
@@ -65,20 +103,29 @@ const TimePickerRangeExample = ({ title, onTimeChange }) => {
         </div>
       ) : null}
       {title === "Select Time" ? (
-        <div>
-          <Row title="Select Time">
-            <TimePicker
-              format="yyyy-MMM-dd HH:mm" // Display in a more user-friendly format
-              onChange={(value) => setDate(value)}
-              placeholder="Select Time"
-              value={date} // Set default value to current time
-              // Define available times by hiding unavailable ones
-              hideHours={(hour) => hour < 8 || hour > 18}
-              hideMinutes={(minute) => minute % 15 !== 0}
-              hideSeconds={(second) => second % 30 !== 0}
-              disabledDate={disableNonSundayMonday} // Disable non-Sunday/Monday and past dates
-            />
-          </Row>
+        <div className="w-full flex space-x-1 ">
+          <h1>Select Date:</h1>
+          <TimePicker
+            format="MMM-dd" // Display in a more user-friendly format
+            onChange={(value) => setDate(value)}
+            placeholder="Select Date"
+            value={date} // Set default value to current time
+            // Define available times by hiding unavailable ones
+
+            disabledDate={disableNonAllowedDays} // Disable non-Sunday/Monday and past dates
+          />
+          <h1>Select Time:</h1>
+
+          <TimePicker
+            format="HH:mm " // Display in a more user-friendly format
+            onChange={(value) => setDate(value)}
+            placeholder="Select Time"
+            value={date} // Set default value to current time
+            // Define available times by hiding unavailable ones
+
+            hideHours={(hour) => hour < 8 || hour > 15}
+            disabledDate={disableNonAllowedDays} // Disable non-Sunday/Monday and past dates
+          />
         </div>
       ) : null}
       {title === "Select Hour" ? (
@@ -89,6 +136,21 @@ const TimePickerRangeExample = ({ title, onTimeChange }) => {
               onChange={(value) => setDate(value)}
               placeholder="Select Time"
               value={date} // Set default value to current time
+            />
+          </Row>
+        </div>
+      ) : null}
+      {title === "Select Minute" ? (
+        <div>
+          <Row title="Select Duration">
+            <TimePicker
+              className="time-picker-drop-up"
+              format="mm" // Display in a more user-friendly format
+              onChange={(value) => setDuration(value)}
+              placeholder="Select Minute"
+              value={duration} // Set default value to current time
+              onOpen={() => handleToggle(true)}
+              onClose={() => handleToggle(false)}
             />
           </Row>
         </div>

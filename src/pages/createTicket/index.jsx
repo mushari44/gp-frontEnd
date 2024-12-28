@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../../context";
 import Dropdown from "../../components/DropDown";
+
 export default function CreateTicket() {
   const {
     handleCreateTicket,
@@ -13,6 +14,7 @@ export default function CreateTicket() {
     freeTime,
     availableDurations,
     setAvailableDurations,
+    userData,
   } = useContext(GlobalContext);
 
   const [title, setTitle] = useState("");
@@ -23,6 +25,7 @@ export default function CreateTicket() {
   const [course, setCourse] = useState("");
   const [ten, setTen] = useState([]);
   const [eleven, setEleven] = useState([]);
+  const [ticketType, setTicketType] = useState("");
 
   const MIN_HOUR = 10;
   const MAX_HOUR = 11;
@@ -61,7 +64,6 @@ export default function CreateTicket() {
       setEleven(adviser?.availableTimes?.eleven || []);
     }
   }, [adviser]);
-  console.log("dur : ", availableDurations);
 
   useEffect(() => {
     if (selectedHour === "10" && selectedMinute) {
@@ -80,130 +82,148 @@ export default function CreateTicket() {
   }, [selectedHour, selectedMinute, ten]);
 
   return (
-    <div className="flex justify-center  p-10 text-black">
-      <div className="shadow-lg rounded-lg w-full max-w-lg p-6 bg-white">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
+    <div className="flex justify-center p-4 bg-gray-50">
+      <div className="shadow-xl rounded-lg w-full max-w-2xl p-8 bg-white">
+        <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">
           Create Ticket
         </h2>
+
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-6">
             <label
-              htmlFor="adviser"
-              className="block text-sm font-medium text-gray-700"
+              htmlFor="ticketType"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Adviser
+              Ticket Type
             </label>
             <select
-              id="adviser"
-              value={adviser ? adviser._id : ""}
+              id="ticketType"
+              value={ticketType}
               onChange={(e) => {
-                const selectedAdviser = adviserData.find(
-                  (adv) => adv._id === e.target.value
-                );
-                setAdviser(selectedAdviser);
-                setFreeTime(selectedAdviser.availableTimes);
-                setError("");
+                setTicketType(e.target.value);
+                const temp = adviserData.find((advisers) => {
+                  return advisers.username === userData.supervisor;
+                });
+                setAdviser(temp);
               }}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-              aria-label="Select an adviser"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="" disabled={true}>
-                Select an Adviser
+              <option value="" disabled>
+                Select Ticket Type
               </option>
-              {adviserData.map((adviser) => (
-                <option key={adviser._id} value={adviser._id}>
-                  {adviser.username}
-                </option>
-              ))}
+              <option>Course Ticket</option>
+              <option>Supervisor Ticket</option>
             </select>
-            {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
           </div>
-          <div className="mb-4 text-black">
-            <div className="flex space-x-4 text-black">
-              <div className="flex-1 ">
-                <label
-                  htmlFor="title"
-                  className="flex text-sm font-medium text-gray-700"
-                >
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter ticket title"
-                  className="text-black mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full"
-                  required
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  htmlFor="course"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Course
-                </label>
-                <input
-                  type="text"
-                  value={course}
-                  onChange={(e) => setCourse(e.target.value)}
-                  placeholder="Enter your course"
-                  className=" mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full"
-                  required
-                />
-              </div>
+          {ticketType === "Supervisor Ticket" && (
+            <div>
+              <h1>Supervisor :{userData.supervisor}</h1>
             </div>
-          </div>
-
-          <div className="mb-4" hidden={!!adviser ? false : true}>
-            <label
-              htmlFor="time"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Choose Time (between 10:00 AM and 11:55 AM)
-            </label>
-            <div className="flex space-x-4">
-              <Dropdown title={"Select Time"} />
-            </div>
-          </div>
-
-          <div className="mb-4" hidden={!!adviser ? false : true}>
-            <label
-              htmlFor="expected-time"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Expected Duration (minutes)
-            </label>
-            <span className="text-xs text-gray-500">
-              Note: the adviser can update this time
-            </span>
-            <div className="w-full flex items-end justify-end">
-              <select
-                id="expected-time"
-                value={expectedDuration}
-                onChange={(e) => setExpectedDuration(e.target.value)}
-                className="w-2/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-center overflow-auto max-h-32"
-                aria-label="Select expected minutes"
+          )}
+          {ticketType === "Course Ticket" && (
+            <div className="mb-6">
+              <label
+                htmlFor="adviser"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
-                <option key={0} value={0} disabled={true}>
-                  Select the session duration
+                Adviser
+              </label>
+              <select
+                id="adviser"
+                value={adviser ? adviser._id : ""}
+                onChange={(e) => {
+                  const selectedAdviser = adviserData.find(
+                    (adv) => adv._id === e.target.value
+                  );
+                  setAdviser(selectedAdviser);
+                  setFreeTime(selectedAdviser.availableTimes);
+                  setError("");
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="" disabled>
+                  Select an Adviser
                 </option>
-                {[...Array(availableDurations).keys()].map((minute) => (
-                  <option
-                    key={minute + 1}
-                    value={minute + 1 < 10 ? `0${minute + 1}` : minute + 1}
-                  >
-                    {minute + 1 < 10 ? `0${minute + 1}` : minute + 1}
+                {adviserData.map((adviser) => (
+                  <option key={adviser._id} value={adviser._id}>
+                    {adviser.username}
                   </option>
                 ))}
               </select>
+              {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
             </div>
+          )}
+
+          <div className="mb-6">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter ticket title"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            />
           </div>
+
+          {ticketType === "Course Ticket" && (
+            <div className="mb-6">
+              <label
+                htmlFor="course"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Course
+              </label>
+              <input
+                type="text"
+                value={course}
+                onChange={(e) => setCourse(e.target.value)}
+                placeholder="Enter your course"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+          )}
+
+          {!!adviser && (
+            <div className="mb-0">
+              <label
+                htmlFor="time"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Choose Time (between 10:00 AM and 11:55 AM)
+              </label>
+
+              <Dropdown title="Select Time" min />
+            </div>
+          )}
+
+          {adviser && (
+            <div className="mb-6">
+              <label
+                htmlFor="expected-time"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Expected Duration (minutes)
+              </label>
+              <span className="text-xs text-gray-500">
+                Note: The adviser can update this time
+              </span>
+              <div className="mt-2">
+                <Dropdown title="Select Minute" />
+              </div>
+            </div>
+          )}
 
           <div className="text-center">
             <button
               type="submit"
-              className="inline-block bg-indigo-600 hover:bg-indigo-700 py-2 px-4 rounded-md text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-block bg-indigo-600 hover:bg-indigo-700 py-2 px-6 rounded-lg text-sm font-medium text-white shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Create Ticket
             </button>

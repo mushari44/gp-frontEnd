@@ -7,6 +7,8 @@ import CreateTicket from "./pages/createTicket";
 import NavBar from "./components/NavBar";
 import Home from "./pages/home";
 import Profile from "./pages/profile";
+import Admin from "./pages/admin";
+import ChatBot from "./pages/ChatBotPage/components/Card";
 
 function App() {
   const location = useLocation(); // Get the current location (URL path)
@@ -16,7 +18,7 @@ function App() {
 
   return (
     <div>
-      {!hideNavBar && <NavBar />} {/* Conditionally render NavBar */}
+      {!hideNavBar && <NavBar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -24,6 +26,9 @@ function App() {
         <Route path="/tickets" element={<Tickets />} />
         <Route path="/createTicket" element={<CreateTicket />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/asign" element={<Admin />} />
+        <Route path="/supervisorTickets" element={<Tickets />} />
+        <Route path="/ChatBot" element={<ChatBot />} />
       </Routes>
     </div>
   );

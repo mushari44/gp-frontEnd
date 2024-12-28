@@ -53,6 +53,7 @@ export default function AdviserTicketTile({
     }
   }, [socket, ticketItem]);
 
+  const handleStatus = async (status) => {};
   const handleSelect = async (Duration) => {
     setChangeTime(false);
     setDurationChanged(true);
@@ -71,7 +72,7 @@ export default function AdviserTicketTile({
 
     try {
       const response = await axios.put(
-        "https://gp-backend-ikch.onrender.com/api/ticket/user/expectedDuration",
+        "http://127.0.0.1:4000/api/ticket/user/expectedDuration",
         requestBody
       );
       const data = response.data;
@@ -85,23 +86,51 @@ export default function AdviserTicketTile({
 
   const handleEndSession = async () => {
     try {
+      const status = !ticketItem.accepted ? false : true;
       const response = await axios.put(
-        "https://gp-backend-ikch.onrender.com/api/ticket/user/endSession",
+        "http://127.0.0.1:4000/api/ticket/user/endSession",
         {
           adviserId: storedId,
           studentId: ticketItem.ReceiverId,
           ticketId: ticketItem._id,
           ReceiverTicketId: ticketItem.ReceiverTicketId,
           conclusion,
+          accepted: status,
         }
       );
 
       const sessionDetails = {
+        accepted: false,
         adviserTicketId: ticketItem._id,
         studentTicketId: ticketItem.ReceiverTicketId,
         conclusion: conclusion,
       };
       socket.emit("sessionEnded", sessionDetails);
+      setEndSession(false);
+      ticketItem.conclusion = response.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleAccept = async () => {
+    try {
+      const response = await axios.put(
+        "http://127.0.0.1:4000/api/ticket/user/accept",
+        {
+          adviserId: storedId,
+          studentId: ticketItem.ReceiverId,
+          ticketId: ticketItem._id,
+          ReceiverTicketId: ticketItem.ReceiverTicketId,
+        }
+      );
+
+      const sessionDetails = {
+        accepted: false,
+        adviserTicketId: ticketItem._id,
+        studentTicketId: ticketItem.ReceiverTicketId,
+        conclusion: conclusion,
+      };
+      socket.emit("sessionEnded", conclusion);
       setEndSession(false);
       ticketItem.conclusion = response.data;
     } catch (error) {
@@ -153,9 +182,10 @@ export default function AdviserTicketTile({
       }, 100); // Delay to ensure DOM updates
     }
   }, [activeTicket, ticketItem._id]);
+  console.log(ticketItem.accepted);
 
   return (
-    <div className="relative bg-neutral-100 border border-gray-300 rounded-lg shadow-lg p-6 mb-6 w-full max-w-3xl mx-auto hover:shadow-xl transition-transform transform hover:scale-105">
+    <div className="relative bg-neutral-100 border border-gray-300 rounded-lg  slide-in shadow-lg p-6 mb-6 w-full max-w-3xl mx-auto hover:shadow-xl transition-transform transform hover:scale-105">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex-1 text-center sm:text-left">
           {changeTime ? (
@@ -172,13 +202,24 @@ export default function AdviserTicketTile({
           </h2>
           <p className="text-sm text-gray-600">Title: {ticketItem.title}</p>
           <p className="text-sm text-gray-600">Course: {ticketItem.course}</p>
-          <p className="text-sm text-gray-600">
-            Time: {formatTime(startHour, startMinute)} -{" "}
-            {ticketItem.confirmedDuration
-              ? formatTime(endHour, endMinute)
-              : "Pending"}
-          </p>
-          <p className="text-sm text-gray-600">Duration: {duration} minutes</p>
+          {!ticketItem.accepted ? (
+            <div>
+              <p className="text-sm text-gray-600">
+                Time: {formatTime(startHour, startMinute)} -{" "}
+                {ticketItem.confirmedDuration
+                  ? formatTime(endHour, endMinute)
+                  : "Pending"}
+              </p>
+              <p className="text-sm text-gray-600">
+                Duration: {duration} minutes
+              </p>
+            </div>
+          ) : (
+            <h1 className="font-bold text-red-600 items-center justify-center w-full">
+              REJECTED
+            </h1>
+          )}
+
           {ticketItem.conclusion && (
             <div className="w-full">
               <h1 className="text-black">
@@ -189,18 +230,24 @@ export default function AdviserTicketTile({
           )}
         </div>
         <div className="flex gap-2">
-          {!ticketItem.confirmedDuration && !durationChanged && (
-            <button
-              className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600"
-              onClick={() => handleSelect(duration)}
-            >
-              Confirm Duration
-            </button>
-          )}
+          {ticketItem.accepted ||
+            (!ticketItem.confirmedDuration && !durationChanged && (
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600"
+                onClick={() =>
+                  ticketItem.accepted
+                    ? handleSelect(duration)
+                    : handleStatus("accepted")
+                }
+              >
+                {ticketItem.accepted ? "Confirm Duration" : "Accept Ticket"}
+              </button>
+            ))}
           {!ticketItem.confirmedDuration && (
             <button
               className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-600"
               onClick={() => setChangeTime((prev) => !prev)}
+              hidden={!ticketItem.accepted}
             >
               Change Time
             </button>
@@ -211,7 +258,7 @@ export default function AdviserTicketTile({
               className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600"
               onClick={() => setEndSession(!endSession)}
             >
-              End Session
+              {ticketItem.accepted ? "End Session" : "Reject Ticket"}
             </button>
           ) : null}
         </div>
@@ -240,7 +287,11 @@ export default function AdviserTicketTile({
         <div className="w-full flex flex-col items-end mt-4">
           <textarea
             className="w-full h-24 border-2 border-gray-400 rounded-lg p-2 text-black"
-            placeholder="Write your conclusion here..."
+            placeholder={
+              ticketItem.accepted
+                ? "Write your conclusion here..."
+                : "Write your Reject reason here..."
+            }
             value={conclusion}
             onChange={handleConclusionChange}
           />

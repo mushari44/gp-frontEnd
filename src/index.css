@@ -13,6 +13,67 @@
     background-position: 0% 50%;
   }
 }
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.6s ease-out;
+}
+
+@media (max-width: 600px) {
+  /* Adjust font size for mobile users */
+  label {
+    font-size: 12px;
+  }
+
+  /* Add spacing between elements */
+  .time-picker-row {
+    margin-bottom: 10px;
+  }
+
+  /* Ensure TimePicker components fit well */
+  .rs-time-picker {
+    width: 100%;
+  }
+}
+
+@media (min-width: 601px) {
+  /* Desktop-specific styles */
+  .time-picker-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+}
+
+.login-wrapper {
+  height: 100vh; /* Full screen height */
+}
+
+.login-image {
+  background-image: url(./Assets/login-side-bg.png);
+  background-size: cover;
+  background-position: center;
+}
+
+.time-picker-drop-up .rs-picker-menu {
+  bottom: 0%; /* Position above the input */
+  top: auto; /* Disable default positioning */
+  background-color: red !important;
+}
+.time-picker-drop-up .rs-picker-toggle-menu {
+  transform-origin: bottom center; /* Ensure proper animation */
+  background-color: red !important;
+}
+
 .rsuite-picker-menu-item-disabled {
   background-color: red !important; /* Set background to red */
   color: white !important; /* Adjust text color for readability */
@@ -40,6 +101,7 @@
     rgba(17, 16, 16, 0.678),
     rgba(12, 10, 22, 0.863)
   );
+  /* background: black; */
   --bg-color-light: #e3e3e3;
   --bg-color-dark: #1c1c1c;
   --text-color-light: #333333;

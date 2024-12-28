@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  direction: rtl;
+} */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+  border: 2px solid #e0e0e0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #333;
+}
+
+.lg\:w-1\/2 {
+  width: 70% !important;
+  max-width: 1000px;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+.h-64 {
+  height: 28rem;
+}
+
+.bg-gray {
+  background-color: #f3f3f3;
+}
+
+.text-white {
+  /* color: black; */
+}
+
+.bg-blue-600 {
+  background-color: #f3f3f3;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+.text-xl {
+  font-size: 16px;
+  line-height: 1.3rem;
+}
+
+.Message-Suggests {
+  direction: ltr;
+}
+
+.Welcome-Message {
+  width: 80%;
+  max-width: 378px;
+}
+/* 
+.Welcome-Message p {
+  direction: rtl;
+} */
+
+/* .Bot-Response {
+  direction: ltr;
+}
+
+.Bot-Response .Response {
+  direction: rtl;
+} */
+
+.Bot-Response button.rounded-lg {
+  transition: all 0.3s;
+}
+
+.Bot-Response button.rounded-lg:hover {
+  border-radius: 0.5rem;
+  background-color: #dddddd70;
+}
+
+svg.icon-md-heavy {
+  width: 18px;
+}
+
+svg.icon-md-heavy path {
+  fill: #727272;
+}
+
+.loader {
+  direction: ltr;
+}
+
+.loader svg {
+  width: 40px;
+}
+
+.loader div {
+  width: 10%;
+  display: flex;
+  background-color: #f3f3f3;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader circle {
+  stroke: black;
+  fill: black;
+}
+
+.Bot-Response .Response-Container {
+  width: 80%;
+}
+
+.SuggestQ {
+  display: flex;
+  margin: 10px 0px 1.5rem 0px;
+}
+
+.bg-blue-600.suggest {
+  background-color: #f3f3f3;
+  color: #707070;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 5px 5px;
+  height: 25px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.bg-blue-600.suggest:first-child {
+  margin-left: 0px;
+}
+
+.Time-Icon {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+.Time-Icon img {
+  width: 30px;
+}
+
+.Time-Icon .Edit-Button {
+  width: 20px;
+  transition: all 0.3s;
+  border-radius: 0.5rem;
+  display: none;
+}
+
+.Time-Icon .Edit-Button svg {
+  width: 19px;
+}
+
+.User-Chat:hover > .Time-Icon .Edit-Button {
+  display: block;
+}
+
+.Time-Icon .Edit-Button:hover {
+  background-color: #dddddd70;
+}
+
+.User-Chat {
+  margin: 40px 0;
+}
+
+.SendIcon {
+  width: 80%;
+}
+
+.User-Query {
+  padding-right: 6px;
+}

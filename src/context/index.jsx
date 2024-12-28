@@ -13,6 +13,7 @@ export default function GlobalState({ children }) {
   const [storedId, setStoredId] = useLocalStorage("ID", "");
   const [userType, setUserType] = useLocalStorage("userType", "student");
   const [adviserData, setAdviserData] = useState([]);
+  const [studentsData, setStudentsData] = useState([]);
   const [adviser, setAdviser] = useState(null);
   const [socket, setSocket] = useState(null);
   const [freeTime, setFreeTime] = useState([]);
@@ -22,7 +23,9 @@ export default function GlobalState({ children }) {
   const [fromTime2, setFromTime2] = useState(null);
   const [toTime, setToTime] = useState(null);
   const [toTime2, setToTime2] = useState(null);
-
+  const [query, setQuery] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+  const [chatBotLoading, setChatBotLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,11 +33,11 @@ export default function GlobalState({ children }) {
       fetchUser();
     }
   }, [storedId, userType]);
-  // const newSocket = io("https://gp-backend-ikch.onrender.com");
+  // const newSocket = io("http://127.0.0.1:4000");
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io("https://gp-backend-ikch.onrender.com");
+    const newSocket = io("http://127.0.0.1:4000");
 
     newSocket.on("connect", () => {
       console.log("Connected to socket server");
@@ -58,7 +61,7 @@ export default function GlobalState({ children }) {
   const fetchAdvisers = useCallback(async () => {
     try {
       const response = await axios.get(
-        "https://gp-backend-ikch.onrender.com/api/ticket/advisersData"
+        "http://127.0.0.1:4000/api/ticket/advisersData"
       );
       setAdviserData(response.data);
       console.log("adviser  : ", response.data);
@@ -67,7 +70,18 @@ export default function GlobalState({ children }) {
       setError(error.message);
     }
   }, []);
-
+  const fetchStudents = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        "http://127.0.0.1:4000/api/ticket/studentsData"
+      );
+      setStudentsData(response.data);
+      console.log("STUDENTS DATA !  : ", response.data);
+    } catch (error) {
+      console.error("Error fetching students data: ", error);
+      setError(error.message);
+    }
+  }, []);
   // Create a new ticket
   const handleCreateTicket = useCallback(
     async (title, course, selectedHour, selectedMinute, expectedDuration) => {
@@ -86,7 +100,7 @@ export default function GlobalState({ children }) {
       try {
         // Create the ticket
         const response = await axios.put(
-          "https://gp-backend-ikch.onrender.com/api/ticket/user/createTicket",
+          "http://127.0.0.1:4000/api/ticket/user/createTicket",
           {
             studentId: storedId,
             adviserId: adviser?._id,
@@ -131,7 +145,7 @@ export default function GlobalState({ children }) {
 
     try {
       const response = await axios.get(
-        `https://gp-backend-ikch.onrender.com/api/ticket/user/${storedId}?userType=${userType}`
+        `http://127.0.0.1:4000/api/ticket/user/${storedId}?userType=${userType}`
       );
       setUserData(response.data);
       setTickets(response.data.tickets || []); // Update tickets state with fetched tickets
@@ -146,6 +160,69 @@ export default function GlobalState({ children }) {
       setLoading(false);
     }
   }, [storedId, userType]);
+
+  const generateTimestamp = () => {
+    return new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+  const handleSend = async (e) => {
+    if (e) e.preventDefault();
+
+    if (!query.trim()) {
+      alert("Please enter a message.");
+      return;
+    }
+    console.log("QUE ", query);
+
+    const timestamp = generateTimestamp();
+    const userMessage = { type: "user", text: query.trim(), timestamp };
+
+    setChatHistory((prev) => [
+      ...prev,
+      { query, response: null, timestamp: timestamp },
+    ]);
+    setQuery("");
+    setChatBotLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:4000/api/ticket/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: userMessage.text }),
+      });
+
+      const data = await response.json();
+      const botTimestamp = generateTimestamp();
+      console.log("DATA : ", data.reply);
+      setChatHistory((prev) =>
+        prev.map((chat, index) =>
+          index === prev.length - 1
+            ? { ...chat, response: data.reply, botTimestamp }
+            : chat
+        )
+      );
+    } catch (error) {
+      console.error("Error fetching chatbot response:", error);
+      const errorTimestamp = generateTimestamp();
+      setChatHistory((prev) =>
+        prev.map((chat, index) =>
+          index === prev.length - 1
+            ? {
+                ...chat,
+                response:
+                  "حدث خطأ أثناء معالجة استفسارك. الرجاء المحاولة مرة أخرى.",
+                botTimestamp: errorTimestamp,
+              }
+            : chat
+        )
+      );
+    } finally {
+      setChatBotLoading(false);
+    }
+  };
 
   return (
     <GlobalContext.Provider
@@ -180,6 +257,16 @@ export default function GlobalState({ children }) {
         setToTime,
         toTime2,
         setToTime2,
+        fetchStudents,
+        studentsData,
+        query,
+        setQuery,
+        chatHistory,
+        setChatHistory,
+        generateTimestamp,
+        handleSend,
+        setChatBotLoading,
+        chatBotLoading,
       }}
     >
       {children}
