@@ -5,7 +5,9 @@ import {
   AiOutlineHome,
   AiOutlineFundProjectionScreen,
   AiOutlineUser,
+  AiOutlineLogin,
 } from "react-icons/ai";
+import { CiLogin } from "react-icons/ci";
 import { FaRobot } from "react-icons/fa6";
 import { CgFileDocument } from "react-icons/cg";
 import { GlobalContext } from "../../context";
@@ -15,7 +17,7 @@ const NavBar = () => {
   return (
     <>
       <div
-        className={`bg-gradient-to-r z-10 animate-gradient-x py-1 shadow-2xl fixed top-0 left-0 right-0 w-full backdrop-blur-md shadow-current`}
+        className={`bg-gradient-to-r z-10 animate-gradient-x py-1 shadow-2xl fixed top-0 left-0 right-0 w-full backdrop-blur-md shadow-current  bg-black`}
       >
         <nav className="navbar flex flex-col items-center justify-center h-16 max-w-6xl mx-auto space-y-3 sm:flex-row sm:space-y-0 sm:justify-between sm:h-20">
           <Link to={"/"}>
@@ -32,12 +34,11 @@ const NavBar = () => {
                 <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-500 group-hover:w-full"></span>
               </li>
             </Link>
-            <Link to={"/Login"}>
-              <div className="text-center sm:text-left sm:w-full ">
-                <h1 className="cursor-pointer text-white transition-tr  ansform transform hover:scale-110">
-                  Login
-                </h1>
-              </div>
+            <Link to={"/login"} className="group hover:text-gray-500">
+              <li className="cursor-pointer transition-transform transform hover:scale-110 relative flex items-center space-x-1">
+                <CiLogin /> <span>Login</span>
+                <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-white transition-all duration-500 group-hover:w-full"></span>
+              </li>
             </Link>
             <Link to={"/ChatBot"} className="group hover:text-gray-500">
               <li className="cursor-pointer transition-transform transform hover:scale-110 relative flex items-center space-x-1">

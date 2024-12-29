@@ -17,38 +17,92 @@ export default function Profile() {
 
   const handleTimeChange = (index, timeRange) => {
     const { fromTime, toTime } = timeRange;
-    const start = fromTime;
-    const end = toTime;
-    console.log(start, end, timeRange);
+
+    if (!fromTime || !toTime) {
+      console.error("Invalid start or end time:", { fromTime, toTime });
+      return;
+    }
 
     const formatTime = (time) => {
-      if (!time) return null;
       const date = new Date(time);
       return `${date.getHours().toString().padStart(2, "0")}:${date
         .getMinutes()
         .toString()
-        .padStart(2, "0")}`; // Format as "HH:mm"
+        .padStart(2, "0")}`;
     };
 
-    const formattedFromTime = formatTime(start);
-    const formattedToTime = formatTime(end);
+    const formattedFromTime = formatTime(fromTime);
+    const formattedToTime = formatTime(toTime);
+
+    const generateMinutes = (start, end) => {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+
+      const startHour = startDate.getHours();
+      const startMinute = startDate.getMinutes();
+      const endHour = endDate.getHours();
+      const endMinute = endDate.getMinutes();
+
+      const minutes = [];
+      for (
+        let hour = startHour;
+        hour <= (endHour >= startHour ? endHour : 23);
+        hour++
+      ) {
+        const hourMinutes = [];
+        if (hour === startHour && hour === endHour) {
+          for (let minute = startMinute; minute <= endMinute; minute++) {
+            hourMinutes.push(minute);
+          }
+        } else if (hour === startHour) {
+          for (let minute = startMinute; minute < 60; minute++) {
+            hourMinutes.push(minute);
+          }
+        } else if (hour === endHour) {
+          for (let minute = 0; minute <= endMinute; minute++) {
+            hourMinutes.push(minute);
+          }
+        } else {
+          for (let minute = 0; minute < 60; minute++) {
+            hourMinutes.push(minute);
+          }
+        }
+        minutes.push({ hour, minutes: hourMinutes });
+      }
+
+      if (endHour < startHour) {
+        // Handle crossing midnight
+        for (let hour = 0; hour <= endHour; hour++) {
+          const hourMinutes = [];
+          for (
+            let minute = 0;
+            minute < (hour === endHour ? endMinute + 1 : 60);
+            minute++
+          ) {
+            hourMinutes.push(minute);
+          }
+          minutes.push({ hour, minutes: hourMinutes });
+        }
+      }
+
+      return minutes;
+    };
+
+    const generatedMinutes = generateMinutes(fromTime, toTime);
 
     const updatedDaysAndTimes = [...daysAndTimes];
     updatedDaysAndTimes[index].hours = {
       start: formattedFromTime,
       end: formattedToTime,
+      minutes: generatedMinutes,
     };
 
-    // Optionally store the date if `fromTime` exists
-    if (start) {
-      const date = new Date(start);
-      updatedDaysAndTimes[index].date = `${date.getFullYear()}-${(
-        date.getMonth() + 1
-      )
-        .toString()
-        .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`; // Format as "YYYY-MM-DD"
-    }
-    console.log("after upadte : ", updatedDaysAndTimes);
+    const date = new Date(fromTime);
+    updatedDaysAndTimes[index].date = `${date.getFullYear()}-${(
+      date.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 
     setDaysAndTimes(updatedDaysAndTimes);
   };
@@ -68,7 +122,7 @@ export default function Profile() {
   const handleSubmit = async () => {
     try {
       const requestBody = { daysAndTimes, storedId };
-      const response = axios.post(
+      await axios.post(
         "http://127.0.0.1:4000/api/ticket/user/officeHours",
         requestBody
       );
@@ -78,7 +132,6 @@ export default function Profile() {
     } finally {
       console.log("Selected Days and Times:", daysAndTimes);
     }
-    // Send this data to your backend or process it further here
   };
 
   return (
@@ -114,7 +167,7 @@ export default function Profile() {
             </div>
 
             <TimePickerRangeExample
-              title="From Time"
+              title="From To Time"
               onTimeChange={(timeRange) => handleTimeChange(index, timeRange)}
             />
           </div>

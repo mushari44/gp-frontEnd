@@ -18,7 +18,7 @@ export default function GlobalState({ children }) {
   const [socket, setSocket] = useState(null);
   const [freeTime, setFreeTime] = useState([]);
   const [tickets, setTickets] = useState([]); // State to store tickets
-  const [availableDurations, setAvailableDurations] = useState(0);
+  const [availableDurations, setAvailableDurations] = useState([{}]);
   const [fromTime, setFromTime] = useState(null);
   const [fromTime2, setFromTime2] = useState(null);
   const [toTime, setToTime] = useState(null);
@@ -26,6 +26,10 @@ export default function GlobalState({ children }) {
   const [query, setQuery] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [chatBotLoading, setChatBotLoading] = useState(false);
+  const [expectedDuration, setExpectedDuration] = useState(0);
+  const [daysAndTimes, setDaysAndTimes] = useState([
+    { day: "", hours: { start: null, end: null } },
+  ]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -151,6 +155,8 @@ export default function GlobalState({ children }) {
       setTickets(response.data.tickets || []); // Update tickets state with fetched tickets
       console.log("TEST fetch user : ", response.data);
       if (userType === "adviser" && response.data.availableTimes === null) {
+        console.log("NAVIGATE TO PROFILE in context");
+
         navigate("/profile");
       }
     } catch (error) {
@@ -267,6 +273,10 @@ export default function GlobalState({ children }) {
         handleSend,
         setChatBotLoading,
         chatBotLoading,
+        daysAndTimes,
+        setDaysAndTimes,
+        expectedDuration,
+        setExpectedDuration,
       }}
     >
       {children}

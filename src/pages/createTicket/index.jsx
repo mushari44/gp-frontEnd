@@ -27,10 +27,6 @@ export default function CreateTicket() {
   const [eleven, setEleven] = useState([]);
   const [ticketType, setTicketType] = useState("");
 
-  const MIN_HOUR = 10;
-  const MAX_HOUR = 11;
-  const MAX_MINUTE = 55;
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!adviser) {
@@ -64,23 +60,6 @@ export default function CreateTicket() {
       setEleven(adviser?.availableTimes?.eleven || []);
     }
   }, [adviser]);
-
-  useEffect(() => {
-    if (selectedHour === "10" && selectedMinute) {
-      const sortedTen = [...ten].sort((a, b) => parseInt(a) - parseInt(b));
-      for (let index = 0; index < sortedTen.length; index++) {
-        if (sortedTen[index] > selectedMinute) {
-          setAvailableDurations(
-            parseInt(sortedTen[index]) - parseInt(selectedMinute)
-          );
-          break;
-        }
-      }
-    } else if (selectedHour === "11") {
-      setAvailableDurations(MAX_MINUTE - parseInt(selectedMinute));
-    }
-  }, [selectedHour, selectedMinute, ten]);
-
   return (
     <div className="flex justify-center p-4 bg-gray-50">
       <div className="shadow-xl rounded-lg w-full max-w-2xl p-8 bg-white">
@@ -215,7 +194,7 @@ export default function CreateTicket() {
                 Note: The adviser can update this time
               </span>
               <div className="mt-2">
-                <Dropdown title="Select Minute" />
+                <Dropdown title="Select Minutes" min />
               </div>
             </div>
           )}

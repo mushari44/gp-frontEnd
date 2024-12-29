@@ -69,6 +69,7 @@ const ChatCard = () => {
                   setChatHistory(updatedChatHistory);
                 }}
               />
+
               <BotResponse
                 response={chat.response}
                 timestamp={chat.timestamp}

@@ -15,7 +15,9 @@ export default function AdviserTicketTile({
   const [durationChanged, setDurationChanged] = useState(false);
   const [endSession, setEndSession] = useState(false);
   const [conclusion, setConclusion] = useState("");
+  const [status, setStatus] = useState(ticketItem.accepted);
   const { storedId, socket } = useContext(GlobalContext);
+  console.log("ticketItem Duration", ticketItem);
 
   // Ref to target the message container
   const messageContainerRef = useRef(null);
@@ -25,6 +27,7 @@ export default function AdviserTicketTile({
     setChangeTime(false);
     setEndSession(false);
     setConclusion("");
+    setStatus(ticketItem.accepted);
   }, [ticketItem]);
 
   useEffect(() => {
@@ -59,6 +62,7 @@ export default function AdviserTicketTile({
     setDurationChanged(true);
     ticketItem.confirmedDuration = true;
     ticketItem.Duration = Duration;
+    console.log("DURATION  : ", duration);
 
     const requestBody = {
       studentId: ticketItem.ReceiverId,
@@ -75,7 +79,10 @@ export default function AdviserTicketTile({
         "http://127.0.0.1:4000/api/ticket/user/expectedDuration",
         requestBody
       );
-      const data = response.data;
+
+      const data = await response.data;
+
+      console.log("DURATION UPDATED : ", data);
       socket.emit("durationUpdated", { data });
     } catch (error) {
       console.log(error);
@@ -98,7 +105,7 @@ export default function AdviserTicketTile({
           accepted: status,
         }
       );
-
+      console.log("END SESSION RESPONSE : ", response.data);
       const sessionDetails = {
         accepted: false,
         adviserTicketId: ticketItem._id,
@@ -107,14 +114,16 @@ export default function AdviserTicketTile({
       };
       socket.emit("sessionEnded", sessionDetails);
       setEndSession(false);
-      ticketItem.conclusion = response.data;
+      ticketItem.conclusion = response.data.conclusion;
+      ticketItem.accepted = response.data.accepted;
+      setStatus(response.data.accepted);
     } catch (error) {
       console.log(error);
     }
   };
   const handleAccept = async () => {
     try {
-      const response = await axios.put(
+      const response = await axios.post(
         "http://127.0.0.1:4000/api/ticket/user/accept",
         {
           adviserId: storedId,
@@ -123,18 +132,13 @@ export default function AdviserTicketTile({
           ReceiverTicketId: ticketItem.ReceiverTicketId,
         }
       );
-
-      const sessionDetails = {
-        accepted: false,
-        adviserTicketId: ticketItem._id,
-        studentTicketId: ticketItem.ReceiverTicketId,
-        conclusion: conclusion,
-      };
-      socket.emit("sessionEnded", conclusion);
-      setEndSession(false);
-      ticketItem.conclusion = response.data;
+      const data = await response.data;
+      ticketItem.accepted = data;
+      setStatus(true);
     } catch (error) {
-      console.log(error);
+      console.log("accpet Erorr ", error);
+    } finally {
+      console.log("STATUS : ", status);
     }
   };
 
@@ -202,7 +206,7 @@ export default function AdviserTicketTile({
           </h2>
           <p className="text-sm text-gray-600">Title: {ticketItem.title}</p>
           <p className="text-sm text-gray-600">Course: {ticketItem.course}</p>
-          {!ticketItem.accepted ? (
+          {!ticketItem.confirmedDuration && (
             <div>
               <p className="text-sm text-gray-600">
                 Time: {formatTime(startHour, startMinute)} -{" "}
@@ -214,40 +218,47 @@ export default function AdviserTicketTile({
                 Duration: {duration} minutes
               </p>
             </div>
-          ) : (
-            <h1 className="font-bold text-red-600 items-center justify-center w-full">
-              REJECTED
-            </h1>
           )}
 
           {ticketItem.conclusion && (
             <div className="w-full">
               <h1 className="text-black">
-                Session Conclusion:{" "}
+                {ticketItem.accepted === false
+                  ? "REJECTED: "
+                  : "Session Conclusion: "}{" "}
                 <span className="font-normal ">{ticketItem.conclusion}</span>
               </h1>
             </div>
           )}
         </div>
         <div className="flex gap-2">
-          {ticketItem.accepted ||
-            (!ticketItem.confirmedDuration && !durationChanged && (
-              <button
-                className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600"
-                onClick={() =>
-                  ticketItem.accepted
-                    ? handleSelect(duration)
-                    : handleStatus("accepted")
-                }
-              >
-                {ticketItem.accepted ? "Confirm Duration" : "Accept Ticket"}
-              </button>
-            ))}
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600"
+            onClick={() =>
+              ticketItem.accepted !== undefined || ticketItem.accepted === false
+                ? handleSelect(duration)
+                : handleAccept()
+            }
+            hidden={
+              ticketItem.accepted === false ||
+              ticketItem.confirmedDuration === true ||
+              ticketItem.conclusion.length > 1
+            }
+          >
+            {ticketItem.accepted !== undefined && !ticketItem.confirmedDuration
+              ? "Confirm Duration"
+              : "Accept Ticket"}
+          </button>
+
           {!ticketItem.confirmedDuration && (
             <button
               className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-600"
               onClick={() => setChangeTime((prev) => !prev)}
-              hidden={!ticketItem.accepted}
+              hidden={
+                ticketItem.accepted === false ||
+                ticketItem.conclusion.length > 1 ||
+                ticketItem.accepted === undefined
+              }
             >
               Change Time
             </button>

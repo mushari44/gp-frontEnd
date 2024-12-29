@@ -55,7 +55,7 @@ code {
   /* color: black; */
 }
 
-.bg-blue-600 {
+.bg-color {
   background-color: #f3f3f3;
 }
 
@@ -136,7 +136,7 @@ svg.icon-md-heavy path {
   margin: 10px 0px 1.5rem 0px;
 }
 
-.bg-blue-600.suggest {
+.bg-color.suggest {
   background-color: #f3f3f3;
   color: #707070;
   font-weight: 600;
@@ -149,7 +149,7 @@ svg.icon-md-heavy path {
   cursor: pointer;
 }
 
-.bg-blue-600.suggest:first-child {
+.bg-color.suggest:first-child {
   margin-left: 0px;
 }
 

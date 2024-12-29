@@ -41,7 +41,7 @@ const WelcomeMessage = () => {
       </div>
 
       {/* Welcome Message */}
-      <div className="bg-blue-600 text-black rounded-md p-4 mb-4">
+      <div className="bg-color text-black rounded-md p-4 mb-4">
         {welcomingText.map((line, index) => (
           <p
             className="text-md leading-relaxed mb-2"
@@ -58,7 +58,7 @@ const WelcomeMessage = () => {
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
-            className="bg-blue-600 text-black rounded-md p-2 text-left hover:bg-white transition-shadow"
+            className="bg-color text-black rounded-md p-2 text-left hover:bg-white transition-shadow"
             onClick={() => setQuery(suggestion)}
             dir={isArabic(suggestion) ? "rtl" : "ltr"}
           >

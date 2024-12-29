@@ -20,7 +20,38 @@ const BotResponse = ({ response, timestamp, chatBotLoading }) => {
         console.error("Failed to copy text: ", err);
       });
   };
-  console.log("RESPONSE : ", response);
+
+  const formatResponse = (text) => {
+    if (text === null) return null;
+    const lines = text.split("\n");
+    const formatted = [];
+
+    lines.forEach((line) => {
+      if (line.startsWith("###")) {
+        formatted.push(
+          <h3 key={line} className="text-xl font-semibold mt-4">
+            {line.replace("###", "").trim()}
+          </h3>
+        );
+      } else if (line.startsWith("-")) {
+        formatted.push(
+          <li key={line} className="ml-4 list-disc">
+            {line.replace("-", "").trim()}
+          </li>
+        );
+      } else if (line.trim() !== "") {
+        formatted.push(
+          <p key={line} className="mt-2">
+            {line.trim()}
+          </p>
+        );
+      }
+    });
+
+    return formatted;
+  };
+
+  const formattedResponse = formatResponse(response);
 
   return response ? (
     <div className="Bot-Response">
@@ -38,15 +69,7 @@ const BotResponse = ({ response, timestamp, chatBotLoading }) => {
           unicodeBidi: "plaintext", // Enable inline directionality for mixed content
         }}
       >
-        <p
-          className="Response text-lg"
-          style={{
-            direction: "auto", // Allow the browser to auto-detect text direction
-            unicodeBidi: "plaintext", // Enable inline directionality for mixed content
-          }}
-        >
-          {response}
-        </p>
+        <div className="Response text-lg">{formattedResponse}</div>
       </div>
 
       <div className="flex space-x-2 items-center">
@@ -87,7 +110,7 @@ const BotResponse = ({ response, timestamp, chatBotLoading }) => {
     </div>
   ) : (
     <div className="loader">
-      <div className="bg-blue-600 text-white rounded-md p-4">
+      <div className="bg-color text-white rounded-md p-4">
         {chatBotLoading ? <Loader /> : null}
       </div>
     </div>
