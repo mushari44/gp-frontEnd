@@ -17,7 +17,7 @@ export default function GlobalState({ children }) {
   const [adviser, setAdviser] = useState(null);
   const [socket, setSocket] = useState(null);
   const [freeTime, setFreeTime] = useState([]);
-  const [tickets, setTickets] = useState([]); // State to store tickets
+  const [tickets, setTickets] = useState([]); 
   const [availableDurations, setAvailableDurations] = useState([{}]);
   const [fromTime, setFromTime] = useState(null);
   const [fromTime2, setFromTime2] = useState(null);
@@ -36,6 +36,7 @@ export default function GlobalState({ children }) {
     if (storedId && userType) {
       fetchUser();
     }
+    
   }, [storedId, userType]);
   // const newSocket = io("http://127.0.0.1:4000");
 
@@ -86,7 +87,6 @@ export default function GlobalState({ children }) {
       setError(error.message);
     }
   }, []);
-  // Create a new ticket
   const handleCreateTicket = useCallback(
     async (title, course, selectedHour, selectedMinute, expectedDuration) => {
       const newTimeStamp = new Date().toISOString();
@@ -102,7 +102,6 @@ export default function GlobalState({ children }) {
       const studentName = userData?.username;
 
       try {
-        // Create the ticket
         const response = await axios.put(
           "http://127.0.0.1:4000/api/ticket/user/createTicket",
           {
@@ -153,8 +152,10 @@ export default function GlobalState({ children }) {
       );
       setUserData(response.data);
       setTickets(response.data.tickets || []); // Update tickets state with fetched tickets
-      console.log("TEST fetch user : ", response.data);
-      if (userType === "adviser" && response.data.availableTimes === null) {
+      console.log("TEST fetch userTYPE  : ",userType ," with data  : ", response.data);
+
+      
+      if (userType === "adviser" && (response.data.availableTimes===null||response.data.availableTimes===undefined)) {
         console.log("NAVIGATE TO PROFILE in context");
 
         navigate("/profile");

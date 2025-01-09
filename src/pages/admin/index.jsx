@@ -22,7 +22,7 @@ export default function Admin() {
   const [assignedSupervisors, setAssignedSupervisors] = useState([
     {
       selectedAdviser: "",
-      selectedStudents: [], // Array of objects: { id, name }
+      selectedStudents: [],
     },
   ]);
 

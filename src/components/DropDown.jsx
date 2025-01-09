@@ -3,16 +3,16 @@ import { TimePicker, DatePicker } from "rsuite";
 import "rsuite/dist/rsuite-no-reset.min.css";
 import { GlobalContext } from "../context";
 import "../index.css";
-
-const TimePickerRangeExample = ({ title }) => {
+const TimePickerRangeExample = ({ title ,onTimeChange}) => {
   const [fromTime, setFromTime] = useState(null);
   const [toTime, setToTime] = useState(null);
   const [date, setDate] = useState(null);
-  const { adviser, expectedDuration, setExpectedDuration } =
+  const { adviser } =
     useContext(GlobalContext);
   const [allowedHours, setAllowedHours] = useState([]);
   const [allowedMinutesByHour, setAllowedMinutesByHour] = useState({});
-
+  const[adviserFromTime,setAdviserFromTime]=useState(null)
+  const[adviserToTime,setAdviserToTime]=useState(<null></null>)
   const handleFromTimeChange = (value) => {
     setFromTime(value);
     if (toTime && value > toTime) {
@@ -22,13 +22,9 @@ const TimePickerRangeExample = ({ title }) => {
     console.log("From Time changed:", { fromTime: value, toTime });
   };
 
-  const handleToTimeChange = (value) => {
-    setToTime(value);
-    if (fromTime && value < fromTime) {
-      setFromTime(null);
-    }
-    console.log("To Time changed:", { fromTime, toTime: value });
-  };
+
+console.log("FRom TIME : ",adviserFromTime);
+console.log("TO TIME : ",adviserToTime);
 
   const disableNonAllowedDays = (date) => {
     if (!adviser || !adviser.availableTimes || !adviser.availableTimes.Days) {
@@ -83,8 +79,9 @@ const TimePickerRangeExample = ({ title }) => {
       selectedDay.hours.forEach((hour) => {
         const hourStart = Number(hour.start.split(":")[0]);
         const hourEnd = Number(hour.end.split(":")[0]);
-
-        // Check for nested minutes
+          console.log("HOYR??",hourStart);
+          console.log("HOYR end ??",hourEnd);
+          
         hour.minutes.forEach((minuteBlock) => {
           const hour = minuteBlock.hour;
           hours.push(hour);
@@ -107,7 +104,24 @@ const TimePickerRangeExample = ({ title }) => {
     const selectedHour = new Date(fromTime).getHours();
     return !(allowedMinutesByHour[selectedHour] || []).includes(minute);
   };
+ 
+  const handleTimeChange = (from, to) => {
+    const formattedFrom = from
+      ? from.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      : null;
+    const formattedTo = to
+      ? to.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      : null;
 
+    setAdviserFromTime(formattedFrom);
+    setAdviserToTime(formattedTo);
+
+    if (onTimeChange) {
+      onTimeChange(formattedFrom, formattedTo);
+    }
+  };
+  console.log("ONTIME   ",onTimeChange);
+  
   return (
     <div>
       {title === "Select Time" && (
@@ -153,25 +167,31 @@ const TimePickerRangeExample = ({ title }) => {
         </div>
       )}
 
-      {title === "From To Time" && (
+{title === "From To Time" && (
         <div>
-          <h1>From time</h1>
+          <h1>From Time</h1>
           <TimePicker
             className="custom-time-picker"
             format="HH:mm"
             placeholder="Select time"
             value={fromTime}
-            onSelect={handleFromTimeChange}
+            onSelect={(value) => {
+              setFromTime(value);
+              handleTimeChange(value, toTime);
+            }}
             showNow={false}
           />
           <div className="mt-4">
-            <h1>To time</h1>
+            <h1>To Time</h1>
             <TimePicker
               className="custom-time-picker"
               format="HH:mm"
               placeholder="Select time"
               value={toTime}
-              onSelect={handleToTimeChange}
+              onSelect={(value) => {
+                setToTime(value);
+                handleTimeChange(fromTime, value);
+              }}
               showNow={false}
             />
           </div>

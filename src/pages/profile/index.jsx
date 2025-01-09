@@ -15,81 +15,60 @@ export default function Profile() {
     setDaysAndTimes(updatedDaysAndTimes);
   };
 
-  const handleTimeChange = (index, timeRange) => {
-    const { fromTime, toTime } = timeRange;
-
+  const handleTimeChange = (index, fromTime, toTime) => {
     if (!fromTime || !toTime) {
       console.error("Invalid start or end time:", { fromTime, toTime });
       return;
     }
 
-    const formatTime = (time) => {
-      const date = new Date(time);
-      return `${date.getHours().toString().padStart(2, "0")}:${date
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`;
-    };
 
-    const formattedFromTime = formatTime(fromTime);
-    const formattedToTime = formatTime(toTime);
+    const formattedFromTime= fromTime;
+    const formattedToTime =toTime;
 
     const generateMinutes = (start, end) => {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-
-      const startHour = startDate.getHours();
-      const startMinute = startDate.getMinutes();
-      const endHour = endDate.getHours();
-      const endMinute = endDate.getMinutes();
-
+      const [startHour, startMinute] = start.split(":").map(Number);
+      const [endHour, endMinute] = end.split(":").map(Number);
+    
+      console.log("Start Hour:", startHour);
+      console.log("Start Minute:", startMinute);
+      console.log("End Hour:", endHour);
+      console.log("End Minute:", endMinute);
+    
       const minutes = [];
-      for (
-        let hour = startHour;
-        hour <= (endHour >= startHour ? endHour : 23);
-        hour++
-      ) {
-        const hourMinutes = [];
-        if (hour === startHour && hour === endHour) {
-          for (let minute = startMinute; minute <= endMinute; minute++) {
-            hourMinutes.push(minute);
-          }
-        } else if (hour === startHour) {
-          for (let minute = startMinute; minute < 60; minute++) {
-            hourMinutes.push(minute);
-          }
-        } else if (hour === endHour) {
-          for (let minute = 0; minute <= endMinute; minute++) {
-            hourMinutes.push(minute);
-          }
+    
+      if (startHour === endHour) {
+        // If the same hour, generate minutes from startMinute to endMinute
+        minutes.push({
+          hour: startHour,
+          minutes: Array.from({ length: endMinute - startMinute + 1 }, (_, i) => startMinute + i),
+        });
+      } else {
+        // If different hours, handle edge case where endMinute is 00
+        if (endMinute === 0) {
+          minutes.push({
+            hour: startHour,
+            minutes: Array.from({ length: 60 - startMinute }, (_, i) => startMinute + i),
+          });
         } else {
-          for (let minute = 0; minute < 60; minute++) {
-            hourMinutes.push(minute);
-          }
-        }
-        minutes.push({ hour, minutes: hourMinutes });
-      }
-
-      if (endHour < startHour) {
-        // Handle crossing midnight
-        for (let hour = 0; hour <= endHour; hour++) {
-          const hourMinutes = [];
-          for (
-            let minute = 0;
-            minute < (hour === endHour ? endMinute + 1 : 60);
-            minute++
-          ) {
-            hourMinutes.push(minute);
-          }
-          minutes.push({ hour, minutes: hourMinutes });
+          // Otherwise, handle start and end hours separately
+          minutes.push({
+            hour: startHour,
+            minutes: Array.from({ length: 60 - startMinute }, (_, i) => startMinute + i),
+          });
+          minutes.push({
+            hour: endHour,
+            minutes: Array.from({ length: endMinute + 1 }, (_, i) => i),
+          });
         }
       }
-
+    
       return minutes;
     };
+    
 
     const generatedMinutes = generateMinutes(fromTime, toTime);
-
+    console.log("GENERATE MIN : ",generateMinutes);
+    
     const updatedDaysAndTimes = [...daysAndTimes];
     updatedDaysAndTimes[index].hours = {
       start: formattedFromTime,
@@ -168,7 +147,9 @@ export default function Profile() {
 
             <TimePickerRangeExample
               title="From To Time"
-              onTimeChange={(timeRange) => handleTimeChange(index, timeRange)}
+              onTimeChange={(fromTime, toTime) =>
+                handleTimeChange(index, fromTime, toTime)
+              }
             />
           </div>
         ))}
